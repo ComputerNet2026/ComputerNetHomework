@@ -21,6 +21,11 @@ https://www.gyan.dev/ffmpeg/builds/
 
 解压缩后加到环境变量
 
+### 2. 操作
+
+正式打开vlc_project这个文件夹
+
+打开终端
 
 然后创建虚拟环境，必备！！
 
@@ -97,6 +102,7 @@ pip install opencv-python==4.8.0.76 numpy==1.26.0 tqdm -i https://pypi.tuna.tsin
 
 
 最后查看结果是否一致即可
+
 
 
 
