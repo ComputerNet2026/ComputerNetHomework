@@ -73,7 +73,6 @@ pip install opencv-python==4.8.0.76 numpy==1.26.0 tqdm -i https://pypi.tuna.tsin
 
 修改对应参数
 
-<img width="999" height="184" alt="image" src="https://github.com/user-attachments/assets/8cc2161f-9952-4b2b-93ff-a1d3a71358f3" />
 
 <img width="976" height="223" alt="image" src="https://github.com/user-attachments/assets/62e33ea9-7172-4254-9f9a-1553dfcba3f2" />
 
@@ -84,6 +83,7 @@ pip install opencv-python==4.8.0.76 numpy==1.26.0 tqdm -i https://pypi.tuna.tsin
 
 
 最后查看结果是否一致即可
+
 
 
 
