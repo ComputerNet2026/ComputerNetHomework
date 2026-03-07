@@ -27,23 +27,37 @@ def check_file_exists(file_path: Path) -> bool:
     return True
 
 # 转换视频格式（拓展：兼容手机拍摄的MP4）
+# 转换视频格式（拓展：兼容手机拍摄的MP4）
 def convert_video_format(input_path: Path, output_path: Path, fps: int = config.VIDEO_FPS):
     """使用FFmpeg转换视频格式（需提前配置FFmpeg环境变量）"""
     if not check_file_exists(input_path):
         return False
+    # 修正核心：将 -fps 改为 -r（FFmpeg 标准帧率参数）
     cmd = [
         "ffmpeg", "-i", str(input_path),
-        "-c:v", "libxvid",
-        "-fps", str(fps),
-        "-y",  # 覆盖已有文件
+        "-c:v", "libxvid",  # 保持编码器不变（AVI兼容）
+        "-r", str(fps),     # ✅ 替换原 -fps，这是FFmpeg识别的帧率参数
+        "-q:v", "1",        # 新增：最高画质，避免转换后视频模糊
+        "-y",               # 覆盖已有文件
         str(output_path)
     ]
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        # 执行命令并捕获输出（保留原有逻辑，仅改参数）
+        result = subprocess.run(
+            cmd, 
+            check=True, 
+            capture_output=True, 
+            text=True,
+            encoding="utf-8"  # 新增：指定编码，避免中文路径乱码
+        )
         logger.info(f"视频格式转换完成：{input_path} → {output_path}")
         return True
     except subprocess.CalledProcessError as e:
         logger.error(f"视频转换失败：{e.stderr}")
+        return False
+    except Exception as e:
+        # 新增：捕获其他异常（如FFmpeg未配置、路径不存在）
+        logger.error(f"视频转换异常：{str(e)}")
         return False
 
 # 对比两个二进制文件内容（测试用）
