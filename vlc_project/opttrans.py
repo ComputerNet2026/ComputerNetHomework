@@ -28,14 +28,12 @@ def main():
     args = parser.parse_args()
     
     if args.command == 'encode':
-        encoder = OptTransEncoderPillow(
-            module_size=args.module_size, 
-            rs_ecc_symbols=args.ecc,
-            matrix_size=args.matrix_size
-        )
+        encoder = OptTransEncoderPillow()
         encoder.encode_file(args.input_file, args.output_image)
         print(f"Encoded {args.input_file} to {args.output_image}")
-        print(f"  Matrix size: {args.matrix_size}x{args.matrix_size}")
+        print(f"  Matrix size: 166x166")
+        print(f"  Module size: 6px")
+        print(f"  Output size: 996x996px")
     elif args.command == 'decode':
         decoder = OptTransDecoderPillow(
             module_size=args.module_size, 
