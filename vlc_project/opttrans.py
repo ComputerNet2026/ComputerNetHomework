@@ -1,56 +1,63 @@
 #!/usr/bin/env python3
-import argparse
-import os
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+"""
+OptTrans 编码解码工具
 
-from src.encoder_pillow import OptTransEncoderPillow
-from src.decoder_pillow import OptTransDecoderPillow
-# 👇 新增：导入独立的 decode_to_file 函数
-from src.decoder_pillow import decode_to_file
+用法：
+  py opttrans.py encode <input_file> <output_image>
+  py opttrans.py decode <input_image> <output_file>
+"""
+
+import sys
+import os
+from src.encoder import OptTransEncoder
+from src.decoder import OptTransDecoder
 
 def main():
-    parser = argparse.ArgumentParser(description='OptTrans: Binary file to image encoder/decoder')
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    if len(sys.argv) != 4:
+        print("用法错误：")
+        print("  编码：py opttrans.py encode <input_file> <output_image>")
+        print("  解码：py opttrans.py decode <input_image> <output_file>")
+        return
     
-    encode_parser = subparsers.add_parser('encode', help='Encode a binary file to an image')
-    encode_parser.add_argument('input_file', help='Input binary file')
-    encode_parser.add_argument('output_image', help='Output image file')
-    encode_parser.add_argument('--module-size', type=int, default=8, help='Size of each module in pixels (default: 8)')
-    encode_parser.add_argument('--ecc', type=int, default=10, help='Number of RS error correction symbols (default: 10)')
-    encode_parser.add_argument('--matrix-size', type=int, default=145, help='Matrix size (default: 145, larger = more data)')
+    command = sys.argv[1]
+    input_path = sys.argv[2]
+    output_path = sys.argv[3]
     
-    decode_parser = subparsers.add_parser('decode', help='Decode an image to a binary file')
-    decode_parser.add_argument('input_image', help='Input image file')
-    decode_parser.add_argument('output_file', help='Output binary file')
-    decode_parser.add_argument('--module-size', type=int, default=8, help='Size of each module in pixels (default: 8)')
-    decode_parser.add_argument('--ecc', type=int, default=10, help='Number of RS error correction symbols (default: 10)')
-    decode_parser.add_argument('--matrix-size', type=int, default=145, help='Matrix size (must match encode)')
-    
-    args = parser.parse_args()
-    
-    if args.command == 'encode':
-        encoder = OptTransEncoderPillow()
-        encoder.encode_file(args.input_file, args.output_image)
-        print(f"Encoded {args.input_file} to {args.output_image}")
-        print(f"  Matrix size: 166x166")
-        print(f"  Module size: 6px")
-        print(f"  Output size: 996x996px")
-    elif args.command == 'decode':
-        # 👇 注释/删除原有错误调用（2行）
-        # decoder = OptTransDecoderPillow(module_size=args.module_size, rs_ecc_symbols=args.ecc, matrix_size=args.matrix_size)
-        # success = decoder.decode_to_file(args.input_image, args.output_file)
+    if command == "encode":
+        # 编码模式
+        if not os.path.exists(input_path):
+            print(f"错误：输入文件 '{input_path}' 不存在")
+            return
         
-        # 👇 新增：调用独立函数，赋值给 success
-        success = decode_to_file(args.input_image, args.output_file) is not None
+        encoder = OptTransEncoder()
+        try:
+            result = encoder.encode_file(input_path, output_path)
+            if isinstance(result, int):
+                print(f"编码成功！生成了 {result} 帧图像")
+            else:
+                print(f"编码成功！生成图像：{output_path}")
+        except Exception as e:
+            print(f"编码失败：{str(e)}")
+            return
+    
+    elif command == "decode":
+        # 解码模式
+        if not os.path.exists(input_path):
+            print(f"错误：输入图像 '{input_path}' 不存在")
+            return
         
-        if success:
-            print(f"Decoded {args.input_image} to {args.output_file}")
-        else:
-            print(f"Failed to decode {args.input_image}")
-            sys.exit(1)
+        decoder = OptTransDecoder()
+        try:
+            bytes_decoded = decoder.decode_file(input_path, output_path)
+            print(f"解码成功！写入了 {bytes_decoded} 字节到 {output_path}")
+        except Exception as e:
+            print(f"解码失败：{str(e)}")
+            return
+    
     else:
-        parser.print_help()
+        print(f"未知命令：{command}")
+        print("支持的命令：encode, decode")
+        return
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
