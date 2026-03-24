@@ -33,7 +33,7 @@ def sample_modules(image, module_size=8, output_size=None, scale=1, sample_radiu
                 
                 if x1 <= x2 and y1 <= y2:
                     region = img_np[y1:y2+1, x1:x2+1]
-                    avg_brightness = np.mean(region)
+                    avg_brightness = np.median(region)
                     all_brightness.append(avg_brightness)
         
         if len(all_brightness) > 0:
@@ -54,7 +54,7 @@ def sample_modules(image, module_size=8, output_size=None, scale=1, sample_radiu
             
             if x1 <= x2 and y1 <= y2:
                 region = img_np[y1:y2+1, x1:x2+1]
-                avg_brightness = np.mean(region)
-                matrix[i][j] = 1 if avg_brightness < threshold else 0
+                median_brightness = np.median(region)
+                matrix[i][j] = 1 if median_brightness < threshold else 0
     
     return matrix

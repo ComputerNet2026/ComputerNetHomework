@@ -38,7 +38,13 @@ def detect_and_warp(image, module_size=MODULE_SIZE):
     M = cv2.getPerspectiveTransform(src_pts, dst_pts)
     warped = cv2.warpPerspective(img_gray, M, (output_size, output_size), flags=cv2.INTER_LANCZOS4)
     
-    warped = cv2.GaussianBlur(warped, (3, 3), 0.3)
+    kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], dtype=np.float32)
+    warped = cv2.filter2D(warped, -1, kernel)
+    
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    warped = clahe.apply(warped)
+    
+    warped = cv2.GaussianBlur(warped, (3, 3), 0.5)
     
     warped_flipped = 255 - warped
     
